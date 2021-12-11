@@ -1,0 +1,17 @@
+
+
+export POSTGRES_HOST=$(bashio::config 'dbsettings.postgres_host' '**None**')
+export POSTGRES_DB=$(bashio::config 'dbsettings.postgres_db' '**None**')
+export POSTGRES_PORT=$(bashio::config 'dbsettings.postgres_port' 5432)
+export POSTGRES_USER=$(bashio::config 'dbsettings.postgres_user' '**None**')
+export POSTGRES_PASSWORD=$(bashio::config 'dbsettings.postgres_password' '**None**')
+export POSTGRES_CLUSTER=$(bashio::config 'dbsettings.postgres_cluster' false)
+export POSTGRES_EXTRA_OPTS=$(bashio::config 'dump_extra_opts' '-Z6')
+export BACKUP_SUFFIX=$(bashio::config 'backup_suffix' '.sql.gz')
+export BACKUP_SCHEDULE_ENABLED=$(bashio::config 'schedule.enable' true)
+export BACKUP_SCHEDULE=$(bashio::config 'schedule.cron' '@daily')
+export BACKUP_KEEP_DAYS=$(bashio::config 'schedule.backup_keep_days' 7)
+export BACKUP_KEEP_WEEKS=$(bashio::config 'schedule.backup_keep_weeks' 4)
+export BACKUP_KEEP_MONTHS=$(bashio::config 'schedule.backup_keep_months' 6)
+
+export BACKUP_DIR="/share/pgsqlbackup"

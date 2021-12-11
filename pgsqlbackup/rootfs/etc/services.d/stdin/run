@@ -1,0 +1,55 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Starts the STDIN service
+# ==============================================================================
+
+bashio::log.info 'Starting the Home Assistant STDIN service...'
+
+source /addon/.backupenv
+
+# shellcheck disable=SC2162
+while read input; do
+  # parse JSON value
+  input=$(bashio::jq "${input}" '.')
+  bashio::log.debug "Raw input: $input"
+
+  CMD="$(bashio::jq "${input}" '.command')"
+  if [ -z "${CMD}" -a "$input" = "backup" ]; then
+    CMD="backup"
+  fi
+  bashio::log.debug "Using command: $CMD"
+
+  EXTRA_ARGS="$(bashio::jq "${input}" '.extra_args')"
+  if [ -z "${EXTRA_ARGS}" ]; then
+    EXTRA_ARGS=$POSTGRES_EXTRA_OPTS
+  fi
+
+  if bashio::var.equals "backup" "$CMD"; then
+
+    OUTPUT="$(bashio::jq "${input}" '.output')"
+    if [ -z "${OUTPUT}" ]; then
+      OUTPUT="latest${BACKUP_SUFFIX}"
+    fi
+    bashio::log.debug "Using output: $OUTPUT"
+    bashio::log.debug "Using extra_args: $EXTRA_ARGS"
+
+    bashio::log.info "Running backup into $OUTPUT with parameters $EXTRA_ARGS"
+
+    /addon/backup.sh -e="$EXTRA_ARGS" -o="$OUTPUT"
+  fi
+
+  if bashio::var.equals "restore" "$CMD"; then
+
+    INPUT="$(bashio::jq "${input}" '.input')"
+    if [ -z "${INPUT}" ]; then
+      INPUT="latest${BACKUP_SUFFIX}"
+    fi
+    bashio::log.debug "Using input: $INPUT"
+    bashio::log.debug "Using extra_args: $EXTRA_ARGS"
+
+    bashio::log.info "Running restore from $INPUT with parameters $EXTRA_ARGS"
+
+    /addon/restore.sh -e="$EXTRA_ARGS" -i="$INPUT"
+  fi
+
+done < /proc/1/fd/0

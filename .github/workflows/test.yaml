@@ -1,0 +1,27 @@
+name: "Test"
+
+on: 
+  push:
+    branches: [main, test]
+
+jobs:
+  build:
+    name: Test build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Correct version in config
+        run: |
+          ADDON_VERSION=$( cut -c12- <<< ${{ github.ref }} )  # ex: refs/heads/test => test
+          sed -i "s/version: dev/version: $ADDON_VERSION/g" pgsqlbackup/config.yaml
+          sed -i "s/# image:/image:/g" pgsqlbackup/config.yaml
+          sed -i "s/#image:/image:/g" pgsqlbackup/config.yaml
+      - name: Test build
+        uses: home-assistant/builder@master
+        with:
+          args: |
+            --test \
+            --all \
+            --target pgsqlbackup \
+            --docker-hub guirem
