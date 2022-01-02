@@ -4,6 +4,7 @@ set -e
 
 source /addon/.backupenv
 
+OVERWRITTEN_FILENAME=""
 
 for i in "$@"; do
   case $i in

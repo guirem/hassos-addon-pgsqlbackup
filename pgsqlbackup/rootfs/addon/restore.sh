@@ -5,6 +5,7 @@ set -e
 source /addon/.backupenv
 
 RESTORE_EXTRA_OPTS=""
+FILENAME=""
 for i in "$@"; do
   case $i in
     -e=*|--extraargs=*)
